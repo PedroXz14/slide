@@ -1,3 +1,5 @@
+import debounce from "./debounce.js";
+
 export default class Slide {
   constructor(slide, wrapper) {
     this.slide = document.querySelector(slide);
@@ -42,6 +44,13 @@ export default class Slide {
     this.moveSlide(finalPosition);
   }
 
+  onResize() {
+    setTimeout(() => {
+      this.slidesConfig();
+      this.changeSlide(this.index.active);
+    }, 1000);
+  }
+
   onEnd(e) {
     const moveType = e.type === "mouseup" ? "mousemove" : "touchstart";
     this.wrapper.removeEventListener(moveType, this.onMove);
@@ -60,17 +69,25 @@ export default class Slide {
     }
   }
 
+  changeActiveClass() {
+    this.slideArray.forEach((item) => item.element.classList.remove("active"));
+    this.slideArray[this.index.active].element.classList.add("active");
+  }
+
+  changeSlide(index) {
+    const activeSlide = this.slideArray[index];
+    this.moveSlide(activeSlide.position);
+    this.slidesIndexNav(index);
+    this.distance.finalPosition = activeSlide.position;
+    this.changeActiveClass();
+  }
+
   addSlideEvents() {
     this.wrapper.addEventListener("mousedown", this.onStart);
     this.wrapper.addEventListener("touchstart", this.onStart);
     this.wrapper.addEventListener("mouseup", this.onEnd);
     this.wrapper.addEventListener("touchend", this.onEnd);
-  }
-
-  bindEvents() {
-    this.onStart = this.onStart.bind(this);
-    this.onMove = this.onMove.bind(this);
-    this.onEnd = this.onEnd.bind(this);
+    window.addEventListener("resize", this.onResize);
   }
 
   slidePosition(slide) {
@@ -94,19 +111,19 @@ export default class Slide {
     };
   }
 
-  changeSlide(index) {
-    const activeSlide = this.slideArray[index];
-    this.moveSlide(activeSlide.position);
-    this.slidesIndexNav(index);
-    this.distance.finalPosition = activeSlide.position;
-  }
-
   prevSlide() {
     if (this.index.prev !== undefined) this.changeSlide(this.index.prev);
   }
 
   nextSlide() {
     if (this.index.next !== undefined) this.changeSlide(this.index.next);
+  }
+
+  bindEvents() {
+    this.onStart = this.onStart.bind(this);
+    this.onMove = this.onMove.bind(this);
+    this.onEnd = this.onEnd.bind(this);
+    this.onResize = debounce(this.onResize.bind(this), 200);
   }
 
   init() {
