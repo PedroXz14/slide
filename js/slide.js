@@ -5,6 +5,10 @@ export default class Slide {
     this.distance = { startX: 0, finalPosition: 0, movement: 0 };
   }
 
+  transition(active) {
+    this.slide.style.transition = active ? "transform 0.3s ease-out" : "";
+  }
+
   updatePosition(clientX) {
     this.distance.movement = (this.distance.startX - clientX) * 1.6;
     return this.distance.finalPosition - this.distance.movement;
@@ -28,6 +32,7 @@ export default class Slide {
     }
 
     this.wrapper.addEventListener(moveType, this.onMove);
+    this.transition(false);
   }
 
   onMove(e) {
@@ -37,23 +42,35 @@ export default class Slide {
     this.moveSlide(finalPosition);
   }
 
-  removeEvents(e) {
+  onEnd(e) {
     const moveType = e.type === "mouseup" ? "mousemove" : "touchstart";
     this.wrapper.removeEventListener(moveType, this.onMove);
     this.distance.finalPosition = this.distance.movePosition;
+    this.transition(true);
+    this.changeSlideOnEnd();
+  }
+
+  changeSlideOnEnd() {
+    if (this.distance.movement > 120 && this.index.next !== undefined) {
+      this.nextSlide();
+    } else if (this.distance.movement < -120 && this.index.prev !== undefined) {
+      this.prevSlide();
+    } else {
+      this.changeSlide(this.index.active);
+    }
   }
 
   addSlideEvents() {
     this.wrapper.addEventListener("mousedown", this.onStart);
     this.wrapper.addEventListener("touchstart", this.onStart);
-    this.wrapper.addEventListener("mouseup", this.removeEvents);
-    this.wrapper.addEventListener("touchend", this.removeEvents);
+    this.wrapper.addEventListener("mouseup", this.onEnd);
+    this.wrapper.addEventListener("touchend", this.onEnd);
   }
 
   bindEvents() {
     this.onStart = this.onStart.bind(this);
     this.onMove = this.onMove.bind(this);
-    this.removeEvents = this.removeEvents.bind(this);
+    this.onEnd = this.onEnd.bind(this);
   }
 
   slidePosition(slide) {
@@ -71,9 +88,9 @@ export default class Slide {
   slidesIndexNav(index) {
     const last = this.slideArray.length - 1;
     this.index = {
-      prev: index ? index - 1 : last,
+      prev: index ? index - 1 : undefined,
       active: index,
-      next: index === last ? 0 : index + 1,
+      next: index === last ? undefined : index + 1,
     };
   }
 
@@ -84,10 +101,19 @@ export default class Slide {
     this.distance.finalPosition = activeSlide.position;
   }
 
+  prevSlide() {
+    if (this.index.prev !== undefined) this.changeSlide(this.index.prev);
+  }
+
+  nextSlide() {
+    if (this.index.next !== undefined) this.changeSlide(this.index.next);
+  }
+
   init() {
     this.bindEvents();
     this.addSlideEvents();
     this.slidesConfig();
+    this.transition(true);
     return this;
   }
 }
