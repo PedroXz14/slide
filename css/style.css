@@ -53,11 +53,59 @@ img {
   width: 12px;
   height: 12px;
   margin: 5px;
-  background: #ffbb55;
+  background: #1d1d1d;
   border-radius: 50%;
 }
 
 [data-control="slide"] li.active a,
 [data-control="slide"] li a:hover {
-  background: #ee5544;
+  background: #9900ff;
+}
+
+.custom-controls {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.custom-controls li {
+  cursor: pointer;
+  opacity: 0.8;
+  transform: scale(0.8);
+  width: 40px;
+  height: 40px;
+  margin: 2px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.5);
+  transition: 0.3s linear;
+}
+
+.custom-controls li:hover,
+.custom-controls li.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.arrow-nav {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+}
+
+.arrow-nav button {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 24px;
+  background: #1d1d1d url("../img/arrow.svg") center center no-repeat;
+}
+
+.arrow-nav button:hover {
+  background: #2c2c2c url("../img/arrow.svg") center center no-repeat;
+}
+
+.arrow-nav .prev {
+  transform: rotate(-180deg);
 }
